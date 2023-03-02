@@ -1,6 +1,6 @@
 node {
     stage ("Checkout AuthService"){
-        git branch: 'main', url: ' https://github.com/foxwas/bah-mcc-auth-day4.git'
+        git branch: 'main', url: ' https://github.com/bgoggins/Team4ProjectAuth.git'
     }
     
     stage ("Gradle Build - AuthService") {
@@ -10,6 +10,19 @@ node {
     stage ("Gradle Bootjar-Package - AuthService") {
         sh 'gradle bootjar'
     }
+	
+    stage ("Containerize the app-docker build - AuthApi") {
+        sh 'docker build --rm -t team4-auth:v1.1 .'
+    }
+    
+    stage ("Inspect the docker image - AuthApi"){
+        sh "docker images team4-auth:v1.1"
+        sh "docker inspect team4-auth:v1.1"
+    }
+    
+    stage ("Run Docker container instance - AuthApi"){
+        sh "docker run -d --rm --name team4-auth -p 8081:8081 team4-auth:v1.1"
+     }
     
     stage('User Acceptance Test - AuthService') {
 	
@@ -20,8 +33,8 @@ node {
 	  if(response=="Yes") {
 	  
 	    stage('Release - AuthService') {
-	      sh 'gradle build -x test'
-	      sh 'echo AuthService is ready to release!'
+	      sh 'docker stop team4-auth'
+	      sh 'echo Team4 MCC AuthService is ready to release!'
 	    }
 	  }
     }
